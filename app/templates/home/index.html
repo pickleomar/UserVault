@@ -1,0 +1,20 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+    {% if current_user.is_authenticated %}
+        <script>
+            window.location.href = "{{ url_for('home.dashboard') }}";
+        </script>
+    {% else %}
+        <div class="row justify-content-center">
+            <div class="col-md-6 text-center">
+                <h1 class="mb-4">Welcome to User Vault</h1>
+                <p class="lead mb-4">Please login or register to access your dashboard</p>
+                <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg px-4 gap-3">Login</a>
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-outline-secondary btn-lg px-4">Register</a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
