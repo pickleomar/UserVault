@@ -161,7 +161,6 @@ function initDarkMode() {
 function setDarkMode(enabled) {
     document.body.classList.toggle('dark-mode', enabled);
 }
-
 // ==================== UTILITY FUNCTIONS ====================
 function initBootstrapComponents() {
     // Initialize tooltips and popovers
@@ -230,7 +229,7 @@ document.querySelector('form[data-ajax="true"]').addEventListener('submit', func
     });
 });
 
-/* // =================CSRF UpDATE for login ============================
+/*
 
 document.getElementById('login-form').addEventListener('submit', function(e) {
     if (this.dataset.ajax === "true") {

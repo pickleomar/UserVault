@@ -1,7 +1,7 @@
 from flask import flash, jsonify, render_template, redirect, url_for
 from flask import Blueprint, request
 from flask_bcrypt import Bcrypt
-from flask_login import login_user
+from flask_login import login_user, current_user, login_required, logout_user
 from flask_wtf.csrf import CSRFProtect
 from app.models.user import User 
 from app.extensions import db
@@ -14,6 +14,10 @@ csrf = CSRFProtect()
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        if request.headers.get('X-Requested-With')== 'XMLHttpRequest':
+            return jsonify({'redirect': url_for('home.dashboard')})
+        return redirect(url_for('home.dashboard'))
     form = LoginForm()
     
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -42,6 +46,8 @@ def login():
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('home. dashboard'))
     form = RegistrationForm()
     
     if form.validate_on_submit():
@@ -70,5 +76,6 @@ def register():
 
 @auth_bp.route('/logout')
 def logout():
+    logout_user()
     flash('You have been logged out.', 'info')
     return redirect(url_for('home.index'))
