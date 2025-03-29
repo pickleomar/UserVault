@@ -4,47 +4,198 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-md-4">
-        <div class="card mb-4">
+    <!-- User Profile Column -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
             <div class="card-body text-center">
-                <img src="https://via.placeholder.com/150" class="rounded-circle mb-3" alt="Profile">
-                <h3>{{ current_user.username }}</h3>
+                <img src="{{ current_user.avatar_url or 'https://via.placeholder.com/150' }}" 
+                     class="rounded-circle mb-3" 
+                     alt="Profile"
+                     data-bs-toggle="tooltip" 
+                     title="Click to update avatar">
+                
+                <h3 class="card-title">{{ current_user.username }}</h3>
                 <p class="text-muted">{{ current_user.email }}</p>
-                <div class="d-grid gap-2">
-                    <a href="#" class="btn btn-outline-primary">Edit Profile</a>
-                </div>
+                
+                <!-- Profile Update Form (AJAX) -->
+                <form method="POST" 
+                      action="{{ url_for('home.update_profile') }}" 
+                      data-ajax="true"
+                      class="needs-validation"
+                      novalidate>
+                      {{ form.hidden_tag() }} 
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="username" 
+                               name="username"
+                               value="{{ current_user.username }}"
+                               required>
+                        <div class="invalid-feedback">Please enter a username</div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Update Profile</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-    <div class="col-md-8">
+
+    <!-- Main Content Column -->
+    <div class="col-lg-8">
+        <!-- Recent Activity Section -->
         <div class="card mb-4">
-            <div class="card-header">
-                <h4>Recent Activity</h4>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Recent Activity</h4>
+                <a href="{{ url_for('home.load_activity') }}" 
+                   class="btn btn-sm btn-outline-primary"
+                   data-dynamic-content="true"
+                   data-target="#activityContent"
+                   data-loader="#activityLoader">
+                    Refresh
+                </a>
             </div>
-            <div class="card-body">
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">Logged in today</li>
-                    <li class="list-group-item">Updated profile picture</li>
-                    <li class="list-group-item">Completed onboarding</li>
-                </ul>
+            <div id="activityContent">
+                {% include 'home/_activity_partial.html' %}
+            </div>
+            <div id="activityLoader" class="text-center py-3 d-none">
+                <div class="spinner-border text-primary"></div>
             </div>
         </div>
-        
-        <div class="card">
-            <div class="card-header">
-                <h4>Quick Actions</h4>
-            </div>
-            <div class="card-body">
-                <div class="row g-2">
-                    <div class="col-md-6">
-                        <a href="#" class="btn btn-outline-secondary w-100">Change Password</a>
+
+        <!-- Quick Actions -->
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Account Security</h5>
+                        <div class="d-grid gap-2">
+                            <a href="#" 
+                               class="btn btn-outline-secondary"
+                               data-bs-toggle="modal"
+                               data-bs-target="#passwordModal">
+                                Change Password
+                            </a>
+                            <button class="btn btn-outline-danger" 
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteModal">
+                                Delete Account
+                            </button>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <a href="#" class="btn btn-outline-danger w-100">Delete Account</a>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Statistics</h5>
+                        <div id="statsContent" 
+                             data-dynamic-content="true"
+                             data-load-on-init="true"
+                             data-url="{{ url_for('home.load_stats') }}">
+                            <!-- Dynamic content will load here -->
+                            <div class="text-center py-3">
+                                <div class="spinner-border text-primary"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Password Change Modal -->
+<div class="modal fade" id="passwordModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Change Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" 
+                  action="{{ url_for('home.change_password') }}" 
+                  data-ajax="true">
+                  {{ form.hidden_tag() }} 
+                <div class="modal-body">
+
+                    <div class="mb-3">
+                        <label for="current_password" class="form-label">Current Password</label>
+                        <input type="password" class="form-control" name="current_password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="new_password" class="form-label">New Password</label>
+                        <input type="password" class="form-control" name="new_password" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Update Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Account Modal -->
+<div class="modal fade" id="deleteModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger">Delete Account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+                <form method="POST" 
+                      action="{{ url_for('home.delete_account') }}" 
+                      data-ajax="true"
+                      class="mt-3">
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" name="password" required>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-danger">Delete Account Permanently</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Set up CSRF token for AJAX requests
+const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+// Handle profile form submission
+document.getElementById('profileForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    fetch(this.action, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': csrfToken
+        },
+        body: new URLSearchParams(new FormData(this))
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Handle successful update
+            location.reload(); // Or update UI dynamically
+        } else {
+            alert(data.error || 'Update failed');
+        }
+    });
+});
+
+
+</script>
 {% endblock %}
