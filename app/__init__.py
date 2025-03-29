@@ -50,6 +50,7 @@ def create_app(config_class=Config):
     # Security headers middleware
     @app.after_request
     def add_security_headers(response):
+        #TO BE UPDATED
         #response.headers['Content-Security-Policy'] = "default-src 'self' https://cdn.jsdelivr.net; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net;"
         response.headers['X-Content-Type-Options'] = 'nosniff'
         return response

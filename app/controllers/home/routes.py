@@ -96,3 +96,67 @@ def load_stats():
         })
     
     return render_template('home/dashboard.html', stats=stats)
+
+
+# Diary Routes
+@home_bp.route('/diary')
+@login_required
+def diary_list():
+    # List all diary entries for the current user
+    entries = DiaryEntry.query.filter_by(user_id=current_user.id).all()
+    return render_template('diary/list.html', entries=entries)
+
+@home_bp.route('/diary/create', methods=['GET', 'POST'])
+@login_required
+def create_entry():
+    form = DiaryEntryForm()
+    if form.validate_on_submit():
+        entry = DiaryEntry(
+            title=form.title.data,
+            content=form.content.data,
+            user_id=current_user.id
+        )
+        db.session.add(entry)
+        db.session.commit()
+        flash('Entry created!', 'success')
+        return redirect(url_for('home.diary_list'))
+    return render_template('diary/create.html', form=form)
+
+@home_bp.route('/diary/<int:entry_id>')
+@login_required
+def view_entry(entry_id):
+    entry = DiaryEntry.query.get_or_404(entry_id)
+    if entry.user_id != current_user.id:
+        flash('You do not have permission to view this entry.', 'danger')
+        return redirect(url_for('home.diary_list'))
+    return render_template('diary/view.html', entry=entry)
+
+@home_bp.route('/diary/<int:entry_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_entry(entry_id):
+    entry = DiaryEntry.query.get_or_404(entry_id)
+    if entry.user_id != current_user.id:
+        flash('Unauthorized action.', 'danger')
+        return redirect(url_for('home.diary_list'))
+    
+    form = DiaryEntryForm(obj=entry)
+    if form.validate_on_submit():
+        entry.title = form.title.data
+        entry.content = form.content.data
+        db.session.commit()
+        flash('Entry updated!', 'success')
+        return redirect(url_for('home.view_entry', entry_id=entry.id))
+    return render_template('diary/edit.html', form=form, entry=entry)
+
+@home_bp.route('/diary/<int:entry_id>/delete', methods=['POST'])
+@login_required
+def delete_entry(entry_id):
+    entry = DiaryEntry.query.get_or_404(entry_id)
+    if entry.user_id != current_user.id:
+        flash('Unauthorized action.', 'danger')
+        return redirect(url_for('home.diary_list'))
+    
+    db.session.delete(entry)
+    db.session.commit()
+    flash('Entry deleted!', 'success')
+    return redirect(url_for('home.diary_list'))

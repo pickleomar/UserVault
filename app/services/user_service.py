@@ -49,7 +49,6 @@ class UserService:
 
     @staticmethod
     def get_recent_activity(user_id):
-        # Example with raw data (if using SQL directly)
         activities = db.session.execute("SELECT * FROM activities WHERE user_id = :user_id", 
                                       {'user_id': user_id})
         
@@ -60,11 +59,3 @@ class UserService:
                 # other fields
             })
         return processed
-
-    @staticmethod
-    def get_user_stats(user_id):
-        # Implement actual stats calculation
-        return {
-            'logins': 42,
-            'updates': 5
-        }

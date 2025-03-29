@@ -18,7 +18,16 @@ class User(db.Model, UserMixin):
     bio = db.Column(db.Text, nullable=True)
     profile_pic = db.Column(db.String(255), nullable=True) 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_admin = db.Column(db.Boolean, default=False, nullable=False)
 
     #For debugging 
     def __repr__(self):
         return f'<User {self.username}>'
+
+    def make_admin(self):
+        self.is_admin = True
+        db.session.commit()
+
+    def revoke_admin(self):
+        self.is_admin = False
+        db.session.commit()

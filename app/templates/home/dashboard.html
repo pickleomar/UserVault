@@ -89,18 +89,50 @@
             </div>
             
             <div class="col-md-6">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">Statistics</h5>
-                        <div id="statsContent" 
-                             data-dynamic-content="true"
-                             data-load-on-init="true"
-                             data-url="{{ url_for('home.load_stats') }}">
-                            <!-- Dynamic content will load here -->
-                            <div class="text-center py-3">
-                                <div class="spinner-border text-primary"></div>
-                            </div>
+                <div class="card h-100 shadow">
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-journal-plus me-2"></i>New Diary Entry
+                            </h5>
                         </div>
+                        
+                        <form method="POST" action="{{ url_for('home.create_entry') }}" class="flex-grow-1">
+                            {{ form.hidden_tag() }}
+                            
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Title</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="title" 
+                                       name="title"
+                                       placeholder="Entry title"
+                                       required>
+                            </div>
+                            
+                            <div class="mb-3 flex-grow-1 d-flex flex-column">
+                                <label for="content" class="form-label">Content</label>
+                                <textarea class="form-control flex-grow-1" 
+                                          id="content" 
+                                          name="content" 
+                                          placeholder="Start writing..."
+                                          style="min-height: 150px; resize: none"
+                                          required></textarea>
+                            </div>
+                            
+                            <div class="d-grid mt-auto">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-save me-2"></i>Save Entry
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="card-footer bg-transparent">
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Your entries are private and encrypted
+                        </small>
                     </div>
                 </div>
             </div>

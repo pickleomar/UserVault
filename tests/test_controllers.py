@@ -4,7 +4,6 @@ from werkzeug.datastructures import MultiDict
 from urllib.parse import parse_qs
 import werkzeug.urls
 
-# Apply patch before any Flask imports
 def werkzeug_url_decode(query_string):
     return MultiDict(parse_qs(query_string.decode("utf-8")))# Safe decoding
 

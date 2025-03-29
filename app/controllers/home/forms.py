@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField
+from wtforms import StringField, SubmitField, PasswordField, TextAreaField
 from wtforms.validators import DataRequired, Email, Length, EqualTo
 
 class ProfileForm(FlaskForm):
@@ -21,3 +21,11 @@ class ChangePasswordForm(FlaskForm):
     ])
     confirm_password = PasswordField('Confirm New Password')
 
+class DiaryEntryForm(FlaskForm):
+    title = StringField('Title', validators=[
+        DataRequired(),
+        Length(max=100, message="Title cannot exceed 100 characters")
+    ])
+    content = TextAreaField('Content', validators=[
+        DataRequired(message="Content cannot be empty")
+    ])

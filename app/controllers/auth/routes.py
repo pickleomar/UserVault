@@ -12,6 +12,43 @@ auth_bp = Blueprint('auth', __name__)
 bcrypt = Bcrypt()
 csrf = CSRFProtect()
 
+
+#API endpoint for Non-admins (Uncomment for admin + middleware to add later) 
+@auth_bp.route('/api/users', methods=['GET'])
+@login_required 
+def api_list_users():
+    # Check if current user is admin (assuming you have is_admin field)
+    #if not current_user.is_admin:
+     #   return jsonify({'error': 'Forbidden - Admin access required'}), 403
+    
+    # pagination parameters with defaults
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 20, type=int)
+    
+    # Paginated query
+    users = User.query.paginate(
+        page=page,
+        per_page=per_page,
+        error_out=False
+    )
+    
+    # Format response
+    users_list = [{
+        'id': user.id,
+        'username': user.username,
+        'email': user.email,
+        #'is_admin': user.is_admin,
+        'created_at': user.created_at.isoformat() if user.created_at else None
+    } for user in users.items]
+    
+    return jsonify({
+        'users': users_list,
+        'total_users': users.total,
+        'total_pages': users.pages,
+        'current_page': users.page
+    })
+
+
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
